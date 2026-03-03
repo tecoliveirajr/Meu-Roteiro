@@ -1,169 +1,77 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Travel Planner Pro</title>
     
-    <!-- LIGAÇÃO COM O MANIFEST (Certidão de Nascimento do App) -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Configurações para parecer um App de Celular (PWA) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1A365D">
     
-    <!-- Ícones para iOS e Android -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png">
     <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3125/3125713.png">
 
-    <!-- Bibliotecas Externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
     
     <style>
-        /* ==========================================
-           NOVA PALETA "ESPÍRITO DE VIAJANTE" 🌅✈️
-           ========================================== */
-        
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', 'Segoe UI', sans-serif; }
-        
-        /* Fundo da tela inteira */
         body { display: flex; background-color: #FAFAFA; color: #333; }
         
-        /* O MENU LATERAL */
         .sidebar { 
-            width: 250px; 
-            background-color: #1A365D; 
-            color: white;
-            height: 100vh; 
-            position: fixed; 
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1); 
-            padding: 25px 0; 
-            overflow-y: auto;
+            width: 250px; background-color: #1A365D; color: white; height: 100vh; 
+            position: fixed; box-shadow: 4px 0 15px rgba(0,0,0,0.1); padding: 25px 0; 
+            overflow-y: auto; transition: left 0.3s ease; left: 0; z-index: 999;
         }
+        .sidebar h2 { text-align: center; color: #FFD166; margin-bottom: 25px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .menu-item { display: block; padding: 14px 25px; color: #A0AEC0; text-decoration: none; cursor: pointer; border-left: 4px solid transparent; transition: all 0.3s ease; font-size: 15px; font-weight: 600; }
+        .menu-item:hover, .menu-item.active { background-color: rgba(255, 255, 255, 0.1); color: #FFFFFF; border-left: 4px solid #FF6F61; }
         
-        .sidebar h2 { 
-            text-align: center; 
-            color: #FFD166; 
-            margin-bottom: 25px; 
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        
-        .menu-item { 
-            display: block; 
-            padding: 14px 25px; 
-            color: #A0AEC0; 
-            text-decoration: none; 
-            cursor: pointer; 
-            border-left: 4px solid transparent; 
-            transition: all 0.3s ease; 
-            font-size: 15px;
-            font-weight: 600;
-        }
-        
-        .menu-item:hover, .menu-item.active { 
-            background-color: rgba(255, 255, 255, 0.1); 
-            color: #FFFFFF; 
-            border-left: 4px solid #FF6F61; 
-        }
-        
-        /* ÁREA PRINCIPAL */
-        .main-content { 
-            margin-left: 250px; 
-            padding: 40px; 
-            width: calc(100% - 250px); 
-        }
-        
-        .section { 
-            display: none; 
-            background: #FFFFFF; 
-            padding: 35px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.04); 
-            border-top: 5px solid #0077B6; 
-        }
+        .main-content { margin-left: 250px; padding: 40px; width: calc(100% - 250px); }
+        .section { display: none; background: #FFFFFF; padding: 35px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-top: 5px solid #0077B6; }
         .section.active { display: block; }
         
         h1.titulo { font-size: 2.5rem; color: #1A365D; font-weight: 800;}
         p.subtitulo { color: #FF6F61; margin-bottom: 30px; font-weight: bold; font-size: 1.1rem;}
         h3 { color: #0077B6; margin-bottom: 15px; font-size: 1.4rem; }
         
-        input, select { 
-            width: 100%; 
-            padding: 12px 15px; 
-            margin-bottom: 15px; 
-            border: 1px solid #E2E8F0; 
-            border-radius: 8px; 
-            background-color: #F7FAFC;
-            transition: 0.3s;
-            font-size: 15px;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #0077B6;
-            background-color: #FFF;
-            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
-        }
+        input, select { width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 1px solid #E2E8F0; border-radius: 8px; background-color: #F7FAFC; transition: 0.3s; font-size: 15px; }
+        input:focus, select:focus { outline: none; border-color: #0077B6; background-color: #FFF; box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1); }
         
-        .btn { 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            color: white; 
-            margin-bottom: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-size: 15px;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; margin-bottom: 10px; transition: transform 0.2s, box-shadow 0.2s; font-size: 15px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .btn-primary { background: linear-gradient(135deg, #FF6F61 0%, #FF8A75 100%); }
         .btn-danger { background: #E53E3E; padding: 6px 12px; font-size: 0.9rem; border-radius: 6px; }
         
-        .card { 
-            background: #FFFFFF; 
-            border: 1px solid #EDF2F7; 
-            padding: 18px; 
-            border-radius: 10px; 
-            margin-bottom: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-            transition: 0.3s;
-        }
-        .card:hover {
-            border-color: #0077B6;
-            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.08);
-        }
-
+        .card { background: #FFFFFF; border: 1px solid #EDF2F7; padding: 18px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.3s; }
+        .card:hover { border-color: #0077B6; box-shadow: 0 4px 12px rgba(0, 119, 182, 0.08); }
         a { color: #2A9D8F; font-weight: 600; }
         a:hover { color: #21867a; }
 
-        /* REGRA PARA FUNCIONAR BEM NA TELA DO CELULAR */
+        /* REGRAS EXCLUSIVAS PARA O CELULAR */
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: relative; padding: 10px; display: flex; overflow-x: auto; white-space: nowrap; }
-            .menu-item { display: inline-block; padding: 10px 15px; border-left: none; border-bottom: 3px solid transparent; }
-            .menu-item:hover, .menu-item.active { border-left: none; border-bottom: 3px solid #FF6F61; background: transparent; }
-            .main-content { margin-left: 0; width: 100%; padding: 15px; }
+            #btn-menu-mobile {
+                display: block !important; position: fixed; bottom: 20px; right: 20px;
+                background: #FF6F61; color: white; border: none; padding: 15px 20px;
+                border-radius: 50px; font-size: 16px; font-weight: bold;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; cursor: pointer;
+            }
+            .sidebar { left: -260px; } /* Começa escondido */
+            .sidebar.aberto { left: 0; } /* Mostra quando clica */
+            .main-content { margin-left: 0; width: 100%; padding: 15px; padding-bottom: 80px; }
             .section { padding: 20px; }
+            h1.titulo { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- MENU LATERAL -->
-    <div class="sidebar">
+    <button id="btn-menu-mobile" onclick="toggleMenu()" style="display: none;">☰ Menu</button>
+
+    <div class="sidebar" id="sidebar">
         <h2>✈️ Meu Roteiro</h2>
         <a class="menu-item active" onclick="abrirAba('documentos')">1. 📄 Documentos</a>
         <a class="menu-item" onclick="abrirAba('roteiro')">2. 🗺️ Roteiro</a>
@@ -177,14 +85,11 @@
         <a class="menu-item" onclick="abrirAba('admin')">⚙️ Administrador</a>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL DO APLICATIVO -->
-    <div class="main-content">
-        
+    <div class="main-content" id="main-content" onclick="fecharMenuClicandoFora()">
         <h1 class="titulo" id="display-titulo">Nova Viagem</h1>
         <p class="subtitulo" id="display-datas">Datas não definidas</p>
         <img id="display-imagem" src="" style="max-width: 100%; height: 250px; object-fit: cover; border-radius: 12px; display: none; margin-bottom: 20px;">
 
-        <!-- 1. ABA DOCUMENTOS -->
         <div id="documentos" class="section active">
             <h3>📄 Documentação Necessária</h3>
             <input type="text" id="doc-principal" placeholder="Ex: Passaporte">
@@ -204,7 +109,6 @@
             <div id="lista-checklist"></div>
         </div>
 
-        <!-- 2. ABA ROTEIRO -->
         <div id="roteiro" class="section">
             <h3>🗺️ Roteiro Dia a Dia</h3>
             <input type="text" id="rot-data" placeholder="Data e Hora (Ex: 10/05 - 08:00)">
@@ -215,7 +119,6 @@
             <div id="lista-roteiro" style="margin-top: 20px;"></div>
         </div>
 
-        <!-- 3, 4 E 7. ABAS COM LINKS OPCIONAIS -->
         <div id="transporte" class="section">
             <h3>🚗 Transportes e Hospedagem</h3>
             <input type="text" id="trans-principal" placeholder="Tipo (Ex: Voo / Hotel)">
@@ -243,10 +146,8 @@
             <div id="lista-contatos" style="margin-top: 20px;"></div>
         </div>
 
-        <!-- 5. ABA ORÇAMENTO -->
         <div id="orcamento" class="section">
             <h3>💰 Orçamento da Viagem</h3>
-            
             <label>Categoria:</label>
             <select id="categoria-gasto" style="margin-bottom: 15px;">
                 <option value="">-- Escolha uma categoria --</option>
@@ -257,20 +158,14 @@
                 <option value="Transporte Local">🚕 Transporte Local</option>
                 <option value="Diversos">📦 Diversos</option>
             </select>
-
             <label>Moeda:</label>
             <select id="moeda-selecionada" style="margin-bottom: 15px;">
                 <option value="R$">Real (R$)</option>
                 <option value="$">Dólar ($)</option>
                 <option value="€">Euro (€)</option>
             </select>
-
-            <label>Descrição:</label>
-            <input type="text" id="desc-gasto" placeholder="Ex: Hotel 5 noites">
-
-            <label>Valor:</label>
-            <input type="number" id="valor-gasto" placeholder="Ex: 2500.00" step="0.01">
-
+            <label>Descrição:</label> <input type="text" id="desc-gasto" placeholder="Ex: Hotel 5 noites">
+            <label>Valor:</label> <input type="number" id="valor-gasto" placeholder="Ex: 2500.00" step="0.01">
             <button class="btn btn-primary" onclick="adicionarGastoComCategoria()">+ Adicionar Despesa</button>
 
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
@@ -292,7 +187,6 @@
             </div>
         </div>
 
-        <!-- 6 E 8. ABAS SIMPLES -->
         <div id="seguranca" class="section">
             <h3>🏥 Segurança e Saúde</h3>
             <input type="text" id="seg-principal" placeholder="Tópico (Ex: Vacinas)">
@@ -309,64 +203,51 @@
             <div id="lista-obs" style="margin-top: 20px;"></div>
         </div>
 
-        <!-- 9. ADMINISTRAÇÃO (COM EXPORTAÇÕES SEGURAS) -->
         <div id="admin" class="section">
             <h3>⚙️ Área Protegida</h3>
-            <p style="color: #666; margin-bottom: 20px;">Acesso restrito. Digite a senha para gerenciar sua viagem.</p>
-            
             <div id="login-admin">
                 <input type="password" id="senha-admin" placeholder="Senha (1234)">
                 <button class="btn btn-primary" onclick="verificarSenha()">Entrar</button>
             </div>
 
             <div id="painel-admin" style="display: none; margin-top: 30px;">
-                
                 <div style="background: #F7FAFC; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                    <h4 style="color: #0077B6; margin-bottom: 15px;">📋 Configurações da Viagem</h4>
-                    <label>Título da Viagem:</label><input type="text" id="input-titulo">
+                    <h4 style="color: #0077B6; margin-bottom: 15px;">📋 Configurações</h4>
+                    <label>Título:</label><input type="text" id="input-titulo">
                     <label>Datas:</label><input type="text" id="input-datas">
-                    <label>Imagem da Capa (URL):</label><input type="text" id="input-imagem">
+                    <label>Capa (URL):</label><input type="text" id="input-imagem">
                     <button class="btn btn-primary" onclick="salvarConfiguracoes()">💾 Salvar Capa</button>
                 </div>
 
-                <!-- SELEÇÃO DO QUE EXPORTAR -->
                 <div style="background: #FFF; padding: 15px; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 15px;">
-                    <p style="font-weight: bold; margin-bottom: 10px; color: #1A365D;">Selecione o que deseja exportar:</p>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-doc" checked> 1. Documentos e Links</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-rot" checked> 2. Roteiro Dia a Dia</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-trans" checked> 3. Transportes e Hospedagem</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-app" checked> 4. Apps Essenciais</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-orc" checked> 5. Orçamento</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-seg" checked> 6. Segurança e Saúde</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-cont" checked> 7. Contatos Úteis</label>
-                    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="checkbox" id="exp-obs" checked> 8. Observações</label>
+                    <p style="font-weight: bold; margin-bottom: 10px; color: #1A365D;">Exportar:</p>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-doc" checked> 1. Documentos e Links</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-rot" checked> 2. Roteiro Dia a Dia</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-trans" checked> 3. Transportes</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-app" checked> 4. Apps</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-orc" checked> 5. Orçamento</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-seg" checked> 6. Segurança</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-cont" checked> 7. Contatos</label>
+                    <label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="exp-obs" checked> 8. Observações</label>
                 </div>
 
-                <!-- BOTÕES DE EXPORTAÇÃO (ÍCONES) -->
                 <div style="background: #FFF5F5; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
                     <h4 style="color: #E53E3E; margin-bottom: 15px;">📤 Gerar Arquivos</h4>
-                    <div style="display: flex; gap: 15px; align-items: center;">
-                        <button onclick="gerarPDF()" style="background: none; border: 2px solid #DC2626; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-size: 40px; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(220, 38, 38, 0.1)';" onmouseout="this.style.background='none';">
-                            📄<span style="font-size: 12px; font-weight: bold; color: #DC2626;">PDF</span>
-                        </button>
-                        <button onclick="gerarWord()" style="background: none; border: 2px solid #2563EB; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-size: 40px; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)';" onmouseout="this.style.background='none';">
-                            📘<span style="font-size: 12px; font-weight: bold; color: #2563EB;">WORD</span>
-                        </button>
+                    <div style="display: flex; gap: 15px;">
+                        <button onclick="gerarPDF()" style="background: none; border: 2px solid #DC2626; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-size: 40px;">📄</button>
+                        <button onclick="gerarWord()" style="background: none; border: 2px solid #2563EB; padding: 15px 25px; border-radius: 8px; cursor: pointer; font-size: 40px;">📘</button>
                     </div>
                 </div>
 
                 <div style="background: #FEE2E2; padding: 20px; border-radius: 10px; border-left: 4px solid #DC2626;">
-                    <h4 style="color: #DC2626; margin-bottom: 15px;">⚠️ Zona de Perigo</h4>
-                    <button class="btn btn-danger" onclick="resetarDados()" style="background: #DC2626;">🗑️ Apagar Toda a Viagem</button>
+                    <button class="btn btn-danger" onclick="resetarDados()" style="background: #DC2626;">🗑️ Apagar Tudo</button>
                 </div>
-
             </div>
         </div>
-
     </div>
 
     <!-- ÁREA FANTASMA DO PDF -->
-    <div id="pdf-oficial" style="display: none; padding: 2cm 2cm 2cm 3cm; background: white; width: 21cm; min-height: 29.7cm; font-family: 'Times New Roman', Times, serif;">
+    <div id="pdf-oficial" style="display: none; padding: 2cm 2cm 2cm 3cm; background: white; width: 21cm; min-height: 29.7cm;">
         <img id="pdf-imagem-capa" src="" style="width: 100%; max-height: 300px; object-fit: cover; margin-bottom: 20px; display: none;">
         <h1 id="pdf-titulo" style="text-align: center; font-size: 18pt; margin-bottom: 20px;">MEU ROTEIRO</h1>
         <h3 id="pdf-datas" style="text-align: center; font-size: 12pt; color: #555; margin-bottom: 40px;"></h3>
@@ -375,245 +256,95 @@
 
     <!-- JAVASCRIPT -->
     <script>
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); }
+        function fecharMenuClicandoFora() { if(window.innerWidth <= 768) { document.getElementById('sidebar').classList.remove('aberto'); } }
+
         function abrirAba(nomeAba) {
-            let secoes = document.getElementsByClassName('section');
-            let menus = document.getElementsByClassName('menu-item');
-            for(let i = 0; i < secoes.length; i++) {
-                secoes[i].classList.remove('active');
-                if(menus[i]) menus[i].classList.remove('active'); 
-            }
-            document.getElementById(nomeAba).classList.add('active');
-            event.target.classList.add('active'); 
+            let secoes = document.getElementsByClassName('section'); let menus = document.getElementsByClassName('menu-item');
+            for(let i = 0; i < secoes.length; i++) { secoes[i].classList.remove('active'); if(menus[i]) menus[i].classList.remove('active'); }
+            document.getElementById(nomeAba).classList.add('active'); event.target.classList.add('active'); 
+            if(window.innerWidth <= 768) { document.getElementById('sidebar').classList.remove('aberto'); }
         }
 
         function adicionarCard(idP, idS, idLista) {
-            let p = document.getElementById(idP).value; let s = document.getElementById(idS).value;
-            if(!p) return alert("Preencha o campo principal!");
-            let card = document.createElement('div'); card.className = 'card';
-            card.innerHTML = `<div><strong contenteditable="true">${p}</strong><br><span style="color:#666;" contenteditable="true">${s}</span></div><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
-            document.getElementById(idLista).appendChild(card);
-            document.getElementById(idP).value = ""; document.getElementById(idS).value = "";
+            let p = document.getElementById(idP).value; let s = document.getElementById(idS).value; if(!p) return alert("Preencha!");
+            let card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div><strong contenteditable="true">${p}</strong><br><span style="color:#666;" contenteditable="true">${s}</span></div><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
+            document.getElementById(idLista).appendChild(card); document.getElementById(idP).value = ""; document.getElementById(idS).value = "";
         }
 
         function adicionarCardComLink(idP, idS, idL, idLista) {
-            let p = document.getElementById(idP).value; let s = document.getElementById(idS).value; let l = document.getElementById(idL).value;
-            if(!p) return alert("Preencha!");
+            let p = document.getElementById(idP).value; let s = document.getElementById(idS).value; let l = document.getElementById(idL).value; if(!p) return alert("Preencha!");
             let card = document.createElement('div'); card.className = 'card'; card.style.flexDirection = 'column'; card.style.alignItems = 'flex-start';
             let linkHtml = l ? `<p style="margin-top:8px;">🔍 <b>Busca:</b> <a href="${l}" target="_blank">Acessar Link ↗</a></p>` : "";
             card.innerHTML = `<div style="width:100%; position:relative;"><strong style="font-size:1.1em; color:#0077B6;" contenteditable="true">${p}</strong><p style="margin-top:4px; color:#555;" contenteditable="true">${s}</p>${linkHtml}<button class="btn btn-danger" style="position:absolute; top:0; right:0;" onclick="this.parentElement.parentElement.remove()">X</button></div>`;
-            document.getElementById(idLista).appendChild(card);
-            document.getElementById(idP).value=""; document.getElementById(idS).value=""; document.getElementById(idL).value="";
+            document.getElementById(idLista).appendChild(card); document.getElementById(idP).value=""; document.getElementById(idS).value=""; document.getElementById(idL).value="";
         }
 
         function adicionarRoteiro() {
-            let d = document.getElementById('rot-data').value; let a = document.getElementById('rot-atividade').value; let p = document.getElementById('rot-permanencia').value; let b = document.getElementById('rot-busca').value;
-            if(!d || !a) return alert("Preencha Data e Atividade!");
+            let d = document.getElementById('rot-data').value; let a = document.getElementById('rot-atividade').value; let p = document.getElementById('rot-permanencia').value; let b = document.getElementById('rot-busca').value; if(!d || !a) return alert("Preencha!");
             let card = document.createElement('div'); card.className = 'card'; card.style.flexDirection = 'column'; card.style.alignItems = 'flex-start';
             let linkHtml = b ? `<p style="margin-top:8px;">🔍 <b>Busca:</b> <a href="${b}" target="_blank">Acessar Link ↗</a></p>` : "";
-            card.innerHTML = `<div style="width:100%; position:relative;"><strong style="font-size:1.1em; color:#FF6F61;">📅 <span contenteditable="true">${d}</span> - <span contenteditable="true">${a}</span></strong><p style="margin-top:8px; color:#555;">⏳ <b>Permanência:</b> <span contenteditable="true">${p}</span></p>${linkHtml}<button class="btn btn-danger" style="position:absolute; top:0; right:0;" onclick="this.parentElement.parentElement.remove()">X</button></div>`;
-            document.getElementById('lista-roteiro').appendChild(card);
-            document.getElementById('rot-data').value=""; document.getElementById('rot-atividade').value=""; document.getElementById('rot-permanencia').value=""; document.getElementById('rot-busca').value="";
+            card.innerHTML = `<div style="width:100%; position:relative;"><strong style="font-size:1.1em; color:#FF6F61;">📅 <span contenteditable="true">${d}</span> - <span contenteditable="true">${a}</span></strong><p style="margin-top:8px; color:#555;">⏳ <b>Perm:</b> <span contenteditable="true">${p}</span></p>${linkHtml}<button class="btn btn-danger" style="position:absolute; top:0; right:0;" onclick="this.parentElement.parentElement.remove()">X</button></div>`;
+            document.getElementById('lista-roteiro').appendChild(card); document.getElementById('rot-data').value=""; document.getElementById('rot-atividade').value=""; document.getElementById('rot-permanencia').value=""; document.getElementById('rot-busca').value="";
         }
 
         function adicionarLink() {
-            let titulo = document.getElementById('link-titulo').value; let url = document.getElementById('link-url').value;
-            if(!titulo || !url) return alert("Preencha os dois campos!");
-            let card = document.createElement('div'); card.className = 'card';
-            card.innerHTML = `<div><strong contenteditable="true">${titulo}</strong><br><a href="${url}" target="_blank">${url}</a></div><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
-            document.getElementById('lista-links').appendChild(card);
-            document.getElementById('link-titulo').value = ""; document.getElementById('link-url').value = "";
+            let titulo = document.getElementById('link-titulo').value; let url = document.getElementById('link-url').value; if(!titulo || !url) return alert("Preencha!");
+            let card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<div><strong contenteditable="true">${titulo}</strong><br><a href="${url}" target="_blank">${url}</a></div><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
+            document.getElementById('lista-links').appendChild(card); document.getElementById('link-titulo').value = ""; document.getElementById('link-url').value = "";
         }
 
         function adicionarChecklist() {
-            let item = document.getElementById('check-item').value;
-            if(!item) return alert("Preencha o item!");
+            let item = document.getElementById('check-item').value; if(!item) return alert("Preencha!");
             let card = document.createElement('div'); card.className = 'card'; card.style.justifyContent = 'flex-start'; 
-            card.innerHTML = `<input type="checkbox" style="width:20px; height:20px; margin-right:15px; cursor:pointer;"><span style="flex-grow:1; font-size:16px;" contenteditable="true">${item}</span><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
-            document.getElementById('lista-checklist').appendChild(card);
-            document.getElementById('check-item').value = "";
+            card.innerHTML = `<input type="checkbox" style="width:20px; height:20px; margin-right:15px; cursor:pointer;"><span style="flex-grow:1;" contenteditable="true">${item}</span><button class="btn btn-danger" onclick="this.parentElement.remove()">X</button>`;
+            document.getElementById('lista-checklist').appendChild(card); document.getElementById('check-item').value = "";
         }
 
-        let gastosOrganizados = [];
-        const categoriasCores = { 'Deslocamento':'#fef3c7', 'Hospedagem':'#fce7f3', 'Alimentação':'#d1fae5', 'Atrações':'#e0e7ff', 'Transporte Local':'#fed7aa', 'Diversos':'#f3f4f6' };
-
+        let gastosOrganizados = []; const categoriasCores = { 'Deslocamento':'#fef3c7', 'Hospedagem':'#fce7f3', 'Alimentação':'#d1fae5', 'Atrações':'#e0e7ff', 'Transporte Local':'#fed7aa', 'Diversos':'#f3f4f6' };
         function adicionarGastoComCategoria() {
             let cat = document.getElementById('categoria-gasto').value; let desc = document.getElementById('desc-gasto').value; let val = parseFloat(document.getElementById('valor-gasto').value); let moeda = document.getElementById('moeda-selecionada').value;
-            if(!cat || !desc || isNaN(val)) return alert("Preencha todos os campos do orçamento!");
-            gastosOrganizados.push({ id: Date.now(), categoria: cat, descricao: desc, valor: val, moeda: moeda });
-            atualizarTabelaOrcamento();
-            document.getElementById('categoria-gasto').value=""; document.getElementById('desc-gasto').value=""; document.getElementById('valor-gasto').value="";
+            if(!cat || !desc || isNaN(val)) return alert("Preencha!"); gastosOrganizados.push({ id: Date.now(), categoria: cat, descricao: desc, valor: val, moeda: moeda }); atualizarTabelaOrcamento(); document.getElementById('categoria-gasto').value=""; document.getElementById('desc-gasto').value=""; document.getElementById('valor-gasto').value="";
         }
-
         function atualizarTabelaOrcamento() {
             let tbody = document.getElementById('lista-gastos'); tbody.innerHTML = '';
-            gastosOrganizados.forEach(g => {
-                let tr = document.createElement('tr'); tr.style.backgroundColor = categoriasCores[g.categoria];
-                tr.innerHTML = `<td style="padding:10px;">${g.categoria}</td><td style="padding:10px;">${g.descricao}</td><td style="padding:10px; text-align:right;">${g.moeda} ${g.valor.toFixed(2)}</td><td style="padding:10px; text-align:center;"><button class="btn btn-danger" onclick="removerGasto(${g.id})">X</button></td>`;
-                tbody.appendChild(tr);
-            });
+            gastosOrganizados.forEach(g => { let tr = document.createElement('tr'); tr.style.backgroundColor = categoriasCores[g.categoria]; tr.innerHTML = `<td style="padding:10px;">${g.categoria}</td><td style="padding:10px;">${g.descricao}</td><td style="padding:10px; text-align:right;">${g.moeda} ${g.valor.toFixed(2)}</td><td style="padding:10px; text-align:center;"><button class="btn btn-danger" onclick="removerGasto(${g.id})">X</button></td>`; tbody.appendChild(tr); });
             atualizarResumoPorCategoria();
         }
-
         function removerGasto(id) { gastosOrganizados = gastosOrganizados.filter(g => g.id !== id); atualizarTabelaOrcamento(); }
-
         function atualizarResumoPorCategoria() {
-            let resumo = {}; let total = 0;
-            gastosOrganizados.forEach(g => { if(!resumo[g.categoria]) resumo[g.categoria] = 0; resumo[g.categoria] += g.valor; });
-            let html = '';
-            ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => {
-                if(resumo[c]) { html += `<div style="margin-bottom:10px; padding:8px; background:${categoriasCores[c]}; border-radius:4px;"><strong>${c}:</strong> <span style="float:right;">${gastosOrganizados[0]?.moeda} ${resumo[c].toFixed(2)}</span></div>`; total += resumo[c]; }
-            });
-            document.getElementById('detalhes-resumo').innerHTML = html; 
-            document.getElementById('valor-total-orcamento').innerText = `${gastosOrganizados[0]?.moeda || 'R$'} ${total.toFixed(2)}`;
+            let resumo = {}; let total = 0; gastosOrganizados.forEach(g => { if(!resumo[g.categoria]) resumo[g.categoria] = 0; resumo[g.categoria] += g.valor; });
+            let html = ''; ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => { if(resumo[c]) { html += `<div style="margin-bottom:10px; padding:8px; background:${categoriasCores[c]};"><strong>${c}:</strong> <span style="float:right;">${gastosOrganizados[0]?.moeda} ${resumo[c].toFixed(2)}</span></div>`; total += resumo[c]; } });
+            document.getElementById('detalhes-resumo').innerHTML = html; document.getElementById('valor-total-orcamento').innerText = `${gastosOrganizados[0]?.moeda || 'R$'} ${total.toFixed(2)}`;
         }
 
-        function verificarSenha() {
-            if(document.getElementById('senha-admin').value === '1234') { 
-                document.getElementById('painel-admin').style.display='block'; 
-                document.getElementById('login-admin').style.display='none'; 
-            } else alert("Senha Incorreta");
-        }
-        function salvarConfiguracoes() {
-            let t = document.getElementById('input-titulo').value; let d = document.getElementById('input-datas').value; let i = document.getElementById('input-imagem').value;
-            if(t) document.getElementById('display-titulo').innerText = t; if(d) document.getElementById('display-datas').innerText = d;
-            if(i) { document.getElementById('display-imagem').src = i; document.getElementById('display-imagem').style.display = 'block'; } 
-            alert("Configurações Salvas!");
-        }
-        function resetarDados() { if(confirm("Certeza? Apagará tudo!")) location.reload(); }
+        function verificarSenha() { if(document.getElementById('senha-admin').value === '1234') { document.getElementById('painel-admin').style.display='block'; document.getElementById('login-admin').style.display='none'; } else alert("Senha Incorreta"); }
+        function salvarConfiguracoes() { let t = document.getElementById('input-titulo').value; let d = document.getElementById('input-datas').value; let i = document.getElementById('input-imagem').value; if(t) document.getElementById('display-titulo').innerText = t; if(d) document.getElementById('display-datas').innerText = d; if(i) { document.getElementById('display-imagem').src = i; document.getElementById('display-imagem').style.display = 'block'; } alert("Salvo!"); }
+        function resetarDados() { if(confirm("Certeza?")) location.reload(); }
+        function extrairTextoDoCard(card) { let check = card.querySelector('input[type="checkbox"]'); if(check) return (check.checked ? "☑ " : "☐ ") + card.querySelector('span').innerText; let txt = ""; let spans = card.querySelectorAll('strong, p, span, a'); spans.forEach(s => { let t = s.innerText.replace('X','').replace('Acessar Link ↗','').replace('🔍 Busca:','').trim(); if(t && s.tagName !== 'P' && s.tagName !== 'A') txt += t + " - "; if(s.tagName === 'P' && t) txt += "\n" + t; if(s.tagName === 'A' && s.href) txt += "\nLink: " + s.href; }); return txt.replace(/ - $/g, '').trim(); }
 
-        function extrairTextoDoCard(card) {
-            let check = card.querySelector('input[type="checkbox"]');
-            if(check) return (check.checked ? "☑ " : "☐ ") + card.querySelector('span').innerText;
-            let txt = ""; let spans = card.querySelectorAll('strong, p, span, a');
-            spans.forEach(s => {
-                let t = s.innerText.replace('X','').replace('Acessar Link ↗','').replace('🔍 Busca:','').trim();
-                if(t && s.tagName !== 'P' && s.tagName !== 'A') txt += t + " - ";
-                if(s.tagName === 'P' && t) txt += "\n" + t;
-                if(s.tagName === 'A' && s.href) txt += "\nLink: " + s.href;
-            });
-            return txt.replace(/ - $/g, '').trim();
-        }
-
-        // --- GERAÇÃO DE PDF COM SELEÇÃO (PASSO 3 APLICADO AQUI) ---
         function gerarPDF() {
-            alert("Gerando PDF... Aguarde.");
-            let areaPdf = document.getElementById('pdf-oficial'); 
-            let conteudoPdf = document.getElementById('pdf-conteudo');
-            
-            document.getElementById('pdf-titulo').innerText = document.getElementById('display-titulo').innerText.toUpperCase();
-            document.getElementById('pdf-datas').innerText = document.getElementById('display-datas').innerText;
-            let imgCapa = document.getElementById('display-imagem').src;
-            let pdfImgCapa = document.getElementById('pdf-imagem-capa');
-            if(imgCapa && !imgCapa.endsWith('index.html')) { pdfImgCapa.src = imgCapa; pdfImgCapa.style.display = 'block'; } else { pdfImgCapa.style.display = 'none'; }
-
-            conteudoPdf.innerHTML = '';
-
-            function addSecao(titulo, id) {
-                let lista = document.getElementById(id); if(!lista) return;
-                let cards = lista.querySelectorAll('.card'); if(cards.length === 0) return;
-                let h3 = document.createElement('h3'); h3.innerText = titulo; h3.style.textAlign = 'left'; h3.style.marginTop = '20px'; h3.style.marginBottom = '10px'; conteudoPdf.appendChild(h3);
-                cards.forEach(c => {
-                    let p = document.createElement('p'); p.innerText = extrairTextoDoCard(c); p.style.textAlign = 'justify'; p.style.marginBottom = '10px'; conteudoPdf.appendChild(p);
-                });
-            }
-
-            // AQUI ESTÁ A LÓGICA DO PASSO 3 - Os 'if' verificam se a caixinha está marcada!
-            if(document.getElementById('exp-doc').checked) {
-                addSecao('DOCUMENTAÇÃO NECESSÁRIA', 'lista-docs'); 
-                addSecao('LINKS ÚTEIS', 'lista-links'); 
-                addSecao('CHECKLIST DE PREPARAÇÃO', 'lista-checklist'); 
-            }
-            if(document.getElementById('exp-rot').checked) {
-                addSecao('ROTEIRO DIA A DIA', 'lista-roteiro'); 
-            }
-            if(document.getElementById('exp-trans').checked) {
-                addSecao('TRANSPORTE E HOSPEDAGEM', 'lista-transporte'); 
-            }
-            if(document.getElementById('exp-app').checked) {
-                addSecao('APPS ESSENCIAIS', 'lista-apps');
-            }
-            
-            // Orçamento
-            if(document.getElementById('exp-orc').checked && gastosOrganizados.length > 0) {
-                let h3 = document.createElement('h3'); h3.innerText = 'ORÇAMENTO DA VIAGEM'; h3.style.textAlign = 'left'; h3.style.marginTop = '20px'; conteudoPdf.appendChild(h3);
-                let res = {}; gastosOrganizados.forEach(g => { if(!res[g.categoria]) res[g.categoria]=[]; res[g.categoria].push(g); });
-                let totGeral = 0;
-                ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => {
-                    if(res[c]) {
-                        let sub = 0; conteudoPdf.innerHTML += `<p style="font-weight:bold; margin-top:10px;">${c}</p>`;
-                        res[c].forEach(g => { sub += g.valor; conteudoPdf.innerHTML += `<p style="margin-left:20px;">${g.descricao} ....... ${g.moeda} ${g.valor.toFixed(2)}</p>`; });
-                        conteudoPdf.innerHTML += `<p style="margin-left:20px; font-weight:bold; border-bottom:1px solid #ccc; margin-bottom:10px;">SUBTOTAL: ${gastosOrganizados[0]?.moeda} ${sub.toFixed(2)}</p>`; totGeral += sub;
-                    }
-                });
-                conteudoPdf.innerHTML += `<h3 style="text-align:right; margin-top:15px;">TOTAL GERAL: ${gastosOrganizados[0]?.moeda} ${totGeral.toFixed(2)}</h3>`;
-            }
-
-            if(document.getElementById('exp-seg').checked) { addSecao('SEGURANÇA E SAÚDE', 'lista-seguranca'); }
-            if(document.getElementById('exp-cont').checked) { addSecao('CONTATOS ÚTEIS', 'lista-contatos'); }
-            if(document.getElementById('exp-obs').checked) { addSecao('OBSERVAÇÕES GERAIS', 'lista-obs'); }
-
-            areaPdf.style.display = 'block';
-            html2pdf().set({ margin:0, filename:'MeuRoteiro.pdf', image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'} })
-            .from(areaPdf).save().then(() => { areaPdf.style.display = 'none'; });
+            let areaPdf = document.getElementById('pdf-oficial'); let conteudoPdf = document.getElementById('pdf-conteudo');
+            document.getElementById('pdf-titulo').innerText = document.getElementById('display-titulo').innerText.toUpperCase(); document.getElementById('pdf-datas').innerText = document.getElementById('display-datas').innerText;
+            let imgCapa = document.getElementById('display-imagem').src; let pdfImgCapa = document.getElementById('pdf-imagem-capa');
+            if(imgCapa && !imgCapa.endsWith('index.html')) { pdfImgCapa.src = imgCapa; pdfImgCapa.style.display = 'block'; } else { pdfImgCapa.style.display = 'none'; } conteudoPdf.innerHTML = '';
+            function addSecao(titulo, id) { let lista = document.getElementById(id); if(!lista) return; let cards = lista.querySelectorAll('.card'); if(cards.length === 0) return; let h3 = document.createElement('h3'); h3.innerText = titulo; h3.style.marginTop = '20px'; conteudoPdf.appendChild(h3); cards.forEach(c => { let p = document.createElement('p'); p.innerText = extrairTextoDoCard(c); conteudoPdf.appendChild(p); }); }
+            if(document.getElementById('exp-doc').checked) { addSecao('DOCUMENTAÇÃO NECESSÁRIA', 'lista-docs'); addSecao('LINKS ÚTEIS', 'lista-links'); addSecao('CHECKLIST DE PREPARAÇÃO', 'lista-checklist'); }
+            if(document.getElementById('exp-rot').checked) { addSecao('ROTEIRO DIA A DIA', 'lista-roteiro'); } if(document.getElementById('exp-trans').checked) { addSecao('TRANSPORTE', 'lista-transporte'); } if(document.getElementById('exp-app').checked) { addSecao('APPS ESSENCIAIS', 'lista-apps'); }
+            if(document.getElementById('exp-orc').checked && gastosOrganizados.length > 0) { let h3 = document.createElement('h3'); h3.innerText = 'ORÇAMENTO'; conteudoPdf.appendChild(h3); let res = {}; gastosOrganizados.forEach(g => { if(!res[g.categoria]) res[g.categoria]=[]; res[g.categoria].push(g); }); let totGeral = 0; ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => { if(res[c]) { let sub = 0; conteudoPdf.innerHTML += `<p style="font-weight:bold; margin-top:10px;">${c}</p>`; res[c].forEach(g => { sub += g.valor; conteudoPdf.innerHTML += `<p style="margin-left:20px;">${g.descricao} ....... ${g.moeda} ${g.valor.toFixed(2)}</p>`; }); conteudoPdf.innerHTML += `<p style="margin-left:20px; font-weight:bold;">SUBTOTAL: ${gastosOrganizados[0]?.moeda} ${sub.toFixed(2)}</p>`; totGeral += sub; } }); conteudoPdf.innerHTML += `<h3 style="text-align:right;">TOTAL GERAL: ${gastosOrganizados[0]?.moeda} ${totGeral.toFixed(2)}</h3>`; }
+            if(document.getElementById('exp-seg').checked) { addSecao('SEGURANÇA E SAÚDE', 'lista-seguranca'); } if(document.getElementById('exp-cont').checked) { addSecao('CONTATOS ÚTEIS', 'lista-contatos'); } if(document.getElementById('exp-obs').checked) { addSecao('OBSERVAÇÕES', 'lista-obs'); }
+            areaPdf.style.display = 'block'; html2pdf().set({ margin:0, filename:'MeuRoteiro.pdf', image:{type:'jpeg', quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm', format:'a4', orientation:'portrait'} }).from(areaPdf).save().then(() => { areaPdf.style.display = 'none'; });
         }
 
-        // --- GERAÇÃO DE WORD COM SELEÇÃO (PASSO 3 APLICADO AQUI TAMBÉM) ---
         function gerarWord() {
-            alert("Gerando arquivo Word...");
-            let titulo = document.getElementById('display-titulo').innerText;
-            let datas = document.getElementById('display-datas').innerText;
-            let secoes = [];
-
-            const p = (txt, t, b, a, esp) => new docx.Paragraph({ text: txt, size: t, bold: b, alignment: a, spacing: esp });
-
-            secoes.push(p(titulo.toUpperCase(), 36, true, docx.AlignmentType.CENTER, {after: 200}));
-            secoes.push(p(datas, 24, false, docx.AlignmentType.CENTER, {after: 400}));
-
-            function addSecaoWord(tituloSecao, idLista) {
-                let lista = document.getElementById(idLista); if(!lista) return;
-                let cards = lista.querySelectorAll('.card'); if(cards.length === 0) return;
-                
-                secoes.push(p(tituloSecao, 28, true, docx.AlignmentType.LEFT, {before: 300, after: 100}));
-                cards.forEach(c => {
-                    let txt = extrairTextoDoCard(c);
-                    let linhas = txt.split('\n');
-                    linhas.forEach(linha => { secoes.push(p(linha, 22, false, docx.AlignmentType.JUSTIFIED, {after: 50})); });
-                    secoes.push(p("", 22, false, docx.AlignmentType.LEFT, {after: 100})); 
-                });
-            }
-
-            // AQUI ESTÁ A LÓGICA DO PASSO 3 PARA O WORD
-            if(document.getElementById('exp-doc').checked) {
-                addSecaoWord('DOCUMENTAÇÃO NECESSÁRIA', 'lista-docs');
-                addSecaoWord('LINKS ÚTEIS', 'lista-links');
-                addSecaoWord('CHECKLIST DE PREPARAÇÃO', 'lista-checklist');
-            }
-            if(document.getElementById('exp-rot').checked) { addSecaoWord('ROTEIRO DIA A DIA', 'lista-roteiro'); }
-            if(document.getElementById('exp-trans').checked) { addSecaoWord('TRANSPORTE E HOSPEDAGEM', 'lista-transporte'); }
-            if(document.getElementById('exp-app').checked) { addSecaoWord('APPS ESSENCIAIS', 'lista-apps'); }
-
-            if(document.getElementById('exp-orc').checked && gastosOrganizados.length > 0) {
-                secoes.push(p('ORÇAMENTO DA VIAGEM', 28, true, docx.AlignmentType.LEFT, {before: 300, after: 100}));
-                let res = {}; gastosOrganizados.forEach(g => { if(!res[g.categoria]) res[g.categoria]=[]; res[g.categoria].push(g); });
-                let totGeral = 0;
-                ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => {
-                    if(res[c]) {
-                        let sub = 0; secoes.push(p(c, 24, true, docx.AlignmentType.LEFT, {before: 100, after: 50}));
-                        res[c].forEach(g => { sub += g.valor; secoes.push(p(`  ${g.descricao} ....... ${g.moeda} ${g.valor.toFixed(2)}`, 22, false, docx.AlignmentType.LEFT, {after: 50})); });
-                        secoes.push(p(`  SUBTOTAL: ${gastosOrganizados[0]?.moeda} ${sub.toFixed(2)}`, 22, true, docx.AlignmentType.LEFT, {after: 150})); totGeral += sub;
-                    }
-                });
-                secoes.push(p(`TOTAL GERAL: ${gastosOrganizados[0]?.moeda} ${totGeral.toFixed(2)}`, 28, true, docx.AlignmentType.RIGHT, {before: 200}));
-            }
-
-            if(document.getElementById('exp-seg').checked) { addSecaoWord('SEGURANÇA E SAÚDE', 'lista-seguranca'); }
-            if(document.getElementById('exp-cont').checked) { addSecaoWord('CONTATOS ÚTEIS', 'lista-contatos'); }
-            if(document.getElementById('exp-obs').checked) { addSecaoWord('OBSERVAÇÕES GERAIS', 'lista-obs'); }
-
-            const doc = new docx.Document({ sections: [{ children: secoes }] });
-            docx.Packer.toBlob(doc).then(blob => {
-                const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'Meu_Roteiro.docx'; a.click();
-            });
+            let titulo = document.getElementById('display-titulo').innerText; let datas = document.getElementById('display-datas').innerText; let secoes = []; const p = (txt, t, b, a, esp) => new docx.Paragraph({ text: txt, size: t, bold: b, alignment: a, spacing: esp });
+            secoes.push(p(titulo.toUpperCase(), 36, true, docx.AlignmentType.CENTER, {after: 200})); secoes.push(p(datas, 24, false, docx.AlignmentType.CENTER, {after: 400}));
+            function addSecaoWord(tituloSecao, idLista) { let lista = document.getElementById(idLista); if(!lista) return; let cards = lista.querySelectorAll('.card'); if(cards.length === 0) return; secoes.push(p(tituloSecao, 28, true, docx.AlignmentType.LEFT, {before: 300, after: 100})); cards.forEach(c => { let txt = extrairTextoDoCard(c); let linhas = txt.split('\n'); linhas.forEach(linha => { secoes.push(p(linha, 22, false, docx.AlignmentType.JUSTIFIED, {after: 50})); }); secoes.push(p("", 22, false, docx.AlignmentType.LEFT, {after: 100})); }); }
+            if(document.getElementById('exp-doc').checked) { addSecaoWord('DOCUMENTAÇÃO NECESSÁRIA', 'lista-docs'); addSecaoWord('LINKS ÚTEIS', 'lista-links'); addSecaoWord('CHECKLIST DE PREPARAÇÃO', 'lista-checklist'); }
+            if(document.getElementById('exp-rot').checked) { addSecaoWord('ROTEIRO DIA A DIA', 'lista-roteiro'); } if(document.getElementById('exp-trans').checked) { addSecaoWord('TRANSPORTE', 'lista-transporte'); } if(document.getElementById('exp-app').checked) { addSecaoWord('APPS ESSENCIAIS', 'lista-apps'); }
+            if(document.getElementById('exp-orc').checked && gastosOrganizados.length > 0) { secoes.push(p('ORÇAMENTO', 28, true, docx.AlignmentType.LEFT, {before: 300, after: 100})); let res = {}; gastosOrganizados.forEach(g => { if(!res[g.categoria]) res[g.categoria]=[]; res[g.categoria].push(g); }); let totGeral = 0; ['Deslocamento','Hospedagem','Alimentação','Atrações','Transporte Local','Diversos'].forEach(c => { if(res[c]) { let sub = 0; secoes.push(p(c, 24, true, docx.AlignmentType.LEFT, {before: 100, after: 50})); res[c].forEach(g => { sub += g.valor; secoes.push(p(`  ${g.descricao} ....... ${g.moeda} ${g.valor.toFixed(2)}`, 22, false, docx.AlignmentType.LEFT, {after: 50})); }); secoes.push(p(`  SUBTOTAL: ${gastosOrganizados[0]?.moeda} ${sub.toFixed(2)}`, 22, true, docx.AlignmentType.LEFT, {after: 150})); totGeral += sub; } }); secoes.push(p(`TOTAL GERAL: ${gastosOrganizados[0]?.moeda} ${totGeral.toFixed(2)}`, 28, true, docx.AlignmentType.RIGHT, {before: 200})); }
+            if(document.getElementById('exp-seg').checked) { addSecaoWord('SEGURANÇA E SAÚDE', 'lista-seguranca'); } if(document.getElementById('exp-cont').checked) { addSecaoWord('CONTATOS ÚTEIS', 'lista-contatos'); } if(document.getElementById('exp-obs').checked) { addSecaoWord('OBSERVAÇÕES', 'lista-obs'); }
+            const doc = new docx.Document({ sections: [{ children: secoes }] }); docx.Packer.toBlob(doc).then(blob => { const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'Meu_Roteiro.docx'; a.click(); });
         }
     </script>
 </body>
